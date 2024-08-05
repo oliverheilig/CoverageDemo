@@ -5,7 +5,7 @@
     <meta name="description" content="Demonstrates the visualization of demographic data and the calculation of households that can be reached at a specific driving time." />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@0.7.7/dist/leaflet.css" />
     <style>
         body {
             padding: 0;
@@ -47,7 +47,7 @@
 </head>
 <body>
     <div id="map" />
-    <script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet@0.7.7/dist/leaflet.js"></script>
     <script src="NonTiledLayer.js"></script>
     <script src="NonTiledLayer.WMS.js"></script>
     <script src="./tools.js"></script>
@@ -93,13 +93,13 @@
 
         info.update = function (props) {
             this._div.innerHTML = '<h4>Purchasing Power and Coverage</h4>' +
-                'Regions are shaded by purchasing power category.<br>' + 
+                'Regions are shaded by purchasing power category.<br>' +
             (isBusy ? 'Calculating...' : 'Click on map to display the number of households<br>' + 'that can be reached within 30 minutes.');
         };
 
         info.addTo(map);
 
-        L.control.layers(baseLayers, { 
+        L.control.layers(baseLayers, {
             "Regions": postcode
         }, { position: 'bottomleft' }).addTo(map);
 
@@ -171,7 +171,7 @@
             }
 
             if (!result.coveredRegion)
-                return;         
+                return;
 
             var pickedPolygon = result.coveredRegion;
 
