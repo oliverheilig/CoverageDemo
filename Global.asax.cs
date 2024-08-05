@@ -24,7 +24,8 @@ namespace SpatialTutorial
 
             // set PATH for SpatialLite depending on processor
             var mod_spatialite_folderPath = (IntPtr.Size == 4) ?
-                 "mod_spatialite-5.1.0-win-x86" : "mod_spatialite-5.1.0-win-amd64";
+                 "mod_spatialite-4.4.0-RC0-win-x86" : "mod_spatialite-4.4.0-RC0-win-amd64";
+            //"mod_spatialite-5.1.0-win-x86" : "mod_spatialite-5.1.0-win-amd64";
 
             string path =
                 HostingEnvironment.MapPath("~/SpatialLite/") + mod_spatialite_folderPath + ";" +
