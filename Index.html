@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>xServer Coverage Demo</title>
+    <meta name="description" content="Demonstrates the visualization of demographic data and the calculation of households that can be reached at a specific driving time." />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" />
+    <style>
+        body {
+            padding: 0;
+            margin: 0;
+        }
+
+        html, body, #map {
+            height: 100%;
+        }
+
+        .info {
+            padding: 6px 8px;
+            font: 14px/16px Arial, Helvetica, sans-serif;
+            background: white;
+            background: rgba(255,255,255,0.8);
+            box-shadow: 0 0 15px rgba(0,0,0,0.2);
+            border-radius: 5px;
+        }
+
+            .info h4 {
+                margin: 0 0 5px;
+                color: #777;
+            }
+
+        .legend {
+            text-align: left;
+            line-height: 18px;
+            color: #555;
+        }
+
+            .legend i {
+                width: 18px;
+                height: 18px;
+                float: left;
+                margin-right: 8px;
+                opacity: 0.7;
+            }
+    </style>
+</head>
+<body>
+    <div id="map" />
+    <script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
+    <script src="NonTiledLayer.js"></script>
+    <script src="NonTiledLayer.WMS.js"></script>
+    <script src="./tools.js"></script>
+    <script src="./token.js"></script>
+    <script>
+        // initialize leaflet
+        var map = new L.Map('map');
+
+        // center germany
+        map.setView(new L.LatLng(51, 10), 6);
+
+        var cluster = "eu-n-test";
+        var attribution = '<a href="http://www.ptvgroup.com">PTV</a>, TOMTOM';
+        var ddsAttribtion = '<a href="http://www.ddsgeo.de/">DDS Digital Data Services GmbH, Karlsruhe</a>, GfK Geomarketing';
+
+		map.attributionControl.setPrefix('&copy; 2015');
+
+        // add the xServer layers
+        // set the layer groups for default and sandbox
+        var baseLayers = {
+            "PTV classic": getXMapBaseLayers(cluster, "", token, attribution),
+            "PTV sandbox": getXMapBaseLayers(cluster, "sandbox", token, attribution).addTo(map),
+            "PTV silkysand": getXMapBaseLayers(cluster, "silkysand", token, attribution)
+        };
+        // add postal code layer
+        var mapMarketUrl = 'SpatialTilesHandler.ashx?x={x}&y={y}&z={z}',
+	    postcode = new L.TileLayer(mapMarketUrl, {
+	        maxZoom: 20, minZoom: 3, opacity: 1.0,
+	        attribution: ddsAttribtion
+	    });
+        map.addLayer(postcode);
+
+        // info
+        var info = L.control();
+
+        info.onAdd = function (map) {
+            this._div = L.DomUtil.create('div', 'info');
+            this.update();
+            return this._div;
+        };
+
+        var isBusy = false;
+
+        info.update = function (props) {
+            this._div.innerHTML = '<h4>Purchasing Power and Coverage</h4>' +
+                'Regions are shaded by purchasing power category.<br>' + 
+            (isBusy ? 'Calculating...' : 'Click on map to display the number of households<br>' + 'that can be reached within 30 minutes.');
+        };
+
+        info.addTo(map);
+
+        L.control.layers(baseLayers, { 
+            "Regions": postcode
+        }, { position: 'bottomleft' }).addTo(map);
+
+        // legend
+        var legend = L.control({ position: 'bottomright' });
+
+        legend.onAdd = function (map) {
+
+            var div = L.DomUtil.create('div', 'info legend'),
+                colors = ['#008000', '#90EE90', '#FFFF00', '#FFA500', '#FF0000', '#8B0000', '#800080'],
+                labels = [],
+				from, to;
+
+            for (var i = 0; i < colors.length; i++) {
+                labels.push(
+					'<i style="background:' + colors[i] + '"></i> ' + (i+1));
+            }
+
+            div.innerHTML = labels.join('<br>');
+            return div;
+        };
+
+        legend.addTo(map);
+
+        // add click handler
+        map.on('click', onMapClick);
+        var marker = null;
+
+        function onMapClick(e) {
+            if (isBusy)
+                return;
+
+            if (marker)
+                map.removeLayer(marker);
+
+            marker = L.marker(e.latlng).addTo(map);
+            isBusy = true;
+            info.update();
+            var http_request = new XMLHttpRequest();
+            http_request.open("GET", "SpatialPickHandler.ashx?lat=" + e.latlng.lat + "&lng=" + e.latlng.lng, true);
+            http_request.onreadystatechange = function () { displayResult(http_request, e.latlng) };
+            http_request.send(null);
+        }
+
+        var pickedFeature, pickedIso;
+        var popup = L.popup();
+
+        function displayResult(http_request, latlng) {
+
+            var done = 4, ok = 200;
+            if (http_request.readyState == done) {
+                if (pickedFeature)
+                    map.removeLayer(pickedFeature);
+                if (pickedIso)
+                    map.removeLayer(pickedIso);
+
+                isBusy = false;
+                info.update();
+
+                if (http_request.status == ok) {
+                    var result = JSON.parse(http_request.responseText);
+                }
+            }
+            else
+                return;
+
+            if (result.error) {
+                alert(result.error)
+            }
+
+            if (!result.coveredRegion)
+                return;         
+
+            var pickedPolygon = result.coveredRegion;
+
+            var feature = {
+                "type": "Feature",
+                "properties": {
+                    "style": {
+                        weight: 4, color: "#222", opacity: 1,
+                        fillColor: "#fff", fillOpacity: 0.5
+                    }
+                }
+            };
+
+            feature.geometry = pickedPolygon;
+
+            pickedFeature = L.geoJson([feature], {
+                style: function (feature) {
+                    return feature.properties && feature.properties.style;
+                }
+            });
+
+            pickedFeature.addTo(map);
+            pickedFeature.on('click', onMapClick);
+
+            marker.bindPopup(pickedPolygon.name);
+            marker.openPopup();
+
+
+            var iso = result.isoHorizon;
+
+            feature = {
+                "type": "Feature",
+                "properties": {
+                    "style": {
+                        weight: 4, color: "#00f", opacity: 1
+                    }
+                }
+            };
+
+            feature.geometry = iso;
+
+            pickedIso = L.geoJson([feature], {
+                style: function (feature) {
+                    return feature.properties && feature.properties.style;
+                }
+            });
+
+            pickedIso.addTo(map);
+
+        };
+    </script>
+</body>
+</html>
+<a href="Index.html">Index.html</a>

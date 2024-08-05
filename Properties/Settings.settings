@@ -1,0 +1,15 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="SpatialTutorial.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="token" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">23729FBD-FB95-4956-BA88-EDCEBDF6E5F8</Value>
+    </Setting>
+    <Setting Name="SpatialTutorial_XRouteServiceReference_XRouteWSSersssvice" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">http://localhost:8888/xroute/ws/XRoute</Value>
+    </Setting>
+    <Setting Name="SpatialTutorial_XRouteServiceReference_XRouteWSService" Type="(Web Service URL)" Scope="Application">
+      <Value Profile="(Default)">https://xroute-eu-n-test.cloud.ptvgroup.com:443/xroute/ws/XRoute</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>
