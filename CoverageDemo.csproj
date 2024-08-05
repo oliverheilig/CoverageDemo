@@ -78,7 +78,9 @@
   <ItemGroup>
     <Content Include="Index.html" />
     <Content Include="Global.asax" />
-    <None Include="App_Data\db.sqlite" />
+    <Content Include="App_Data\db.sqlite">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>

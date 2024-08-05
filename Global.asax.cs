@@ -29,7 +29,7 @@ namespace SpatialTutorial
                 Environment.GetEnvironmentVariable("Path", EnvironmentVariableTarget.Process);
             Environment.SetEnvironmentVariable("Path", path, EnvironmentVariableTarget.Process);
 
-            cn = new SQLiteConnection(@"Data Source=|DATADIRECTORY|\db.sqlite;Version=3;");
+            cn = new SQLiteConnection($@"Data Source={HostingEnvironment.MapPath("~/App_Data")}\db.sqlite;Version=3;");
             cn.Open();
 
             // load spatiallite extension
