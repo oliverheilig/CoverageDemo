@@ -16,6 +16,10 @@
             height: 100%;
         }
 
+        #map{
+	    cursor: pointer;
+        }
+	    
         .info {
             padding: 6px 8px;
             font: 14px/16px Arial, Helvetica, sans-serif;
@@ -55,15 +59,15 @@
     <script>
         // initialize leaflet
         var map = new L.Map('map');
-
-        // center germany
-        map.setView(new L.LatLng(51, 10), 6);
+	
+	// center germany
+	map.setView(new L.LatLng(51, 10), 6);
 
         var cluster = "eu-n-test";
         var attribution = '<a href="http://www.ptvgroup.com">PTV</a>, TOMTOM';
         var ddsAttribtion = '<a href="http://www.ddsgeo.de/">DDS Digital Data Services GmbH, Karlsruhe</a>, GfK Geomarketing';
 
-		map.attributionControl.setPrefix('&copy; 2015');
+	map.attributionControl.setPrefix('&copy; 2015');
 
         // add the xServer layers
         // set the layer groups for default and sandbox
